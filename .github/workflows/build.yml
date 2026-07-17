@@ -838,6 +838,7 @@ jobs:
           enable_config CONFIG_IPC_NS
           enable_config CONFIG_PID_NS
           enable_config CONFIG_DEVTMPFS
+          enable_config CONFIG_USER_NS
 
           # 可选: 网络相关配置 (Docker/NAT 模式)
           enable_config_if_defined CONFIG_NETFILTER_XT_MATCH_ADDRTYPE
@@ -869,11 +870,13 @@ jobs:
             fi
           }
 
-          if [[ "${{ inputs.android_version }}" == "android15" && "${{ inputs.kernel_version }}" == "6.6" ]]; then
-            # 1. 开启用户命名空间（必须）
-            # enable_config_if_defined CONFIG_USER_NS
-            # 2. 关闭安卓严格网络控制（必须）
+          if [[ "$CONFIG" == android15-6.6-* ]]; then
             disable_config CONFIG_ANDROID_PARANOID_NETWORK
+          fi
+
+          if [[ "$CONFIG" == android13-5.15-* ]]; then
+            echo "Включение USER_NS для Android 13 / GKI 5.15"
+            enable_config CONFIG_USER_NS
           fi
 
       - name: 注入 NTSync 内核配置
